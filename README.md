@@ -1,150 +1,129 @@
-# LangChain- Develop AI Agents with LangChain & LangGraph 🦜🔗
+# LangChain Course Notes
 
-**Learn LangChain and LangGraph by building real world AI Agents (Python, Latest Version V.1.0+)**
+## Section 1: What Are Agents?
 
-This course is designed to teach you how to QUICKLY harness the power of the LangChain library for LLM applications. Build 3 end-to-end working LangChain based generative AI applications with no fluff, no toy examples - just real projects using real APIs and real-world skills.
+Agents are systems that make decisions and take actions based on the response from an LLM instead of following a fixed, predefined flow.
 
-![LangChain Logo](/static/LangChain_OSS%20Lockup_light.png)
-![LangGraph Logo](/static/LangGraph_OSS%20Lockup_light.png)
+Typical workflow:
+1. The user sends a query.
+2. The LLM reasons about the request.
+3. The agent decides whether an action is needed.
+4. If needed, the agent calls a tool.
+5. The tool returns observations.
+6. The LLM uses those observations to continue reasoning.
+7. The process repeats until the agent can provide a final answer.
 
-[![Twitter Follow](https://img.shields.io/twitter/follow/EdenMarco177?style=social)](https://twitter.com/EdenMarco177)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+Flow:
+Query -> LLM reasoning -> Action -> Tool -> Observations -> LLM -> Final answer
 
-[![udemy](https://img.shields.io/badge/LangChain%20Udemy%20Course%20Coupon%20%2412.99-brightgreen)](https://www.udemy.com/course/langchain/?couponCode=JULY-2026)
+## Section 2: Evolution of Agent Approaches
 
+The main evolution of agent design in LangChain is:
 
+ReAct Agent -> Tool Calling Agent -> LangGraph ReAct Agent -> LangChain create_agent() (v1.0)
 
-## 💡 What You'll Build 
+Summary:
+- ReAct Agent: uses a reasoning-and-action prompt style.
+- Tool Calling Agent: uses function/tool calling.
+- LangGraph ReAct Agent: uses a graph-based workflow.
+- create_agent(): the newer and simpler way to build agents in LangChain.
 
-This course takes you through building 7 real-world AI agent projects, from simple hello-world applications to advanced agentic systems:
+## Section 3: Using create_agent() in LangChain
 
-| Project | Type | Description |
-|---------|------|-------------|
-| 👋 [LangChain Hello World](https://github.com/emarco177/langchain-course/tree/project/hello-world) | Branch (`project/hello-world`) | Your first AI agent - basic structure and LLM integration |
-| 🔎  [Modern Search Agent](https://github.com/emarco177/ice_breaker/tree/project/search-agent) | Branch (`project/search-agent`) | Build search agents using LangChain v.1's `create_agent` interface with custom tools, Tavily integration, and structured outputs |
-| 🧠 [Agents Under The Hood](https://github.com/emarco177/langchain-course/tree/project/agents-under-the-hood) | Branch (`project/agents-under-the-hood`) | Understanding reasoning and acting patterns in AI agents |
-| 📄 [RAG Gist](https://github.com/emarco177/langchain-course/tree/project/rag-gist) | Branch (`project/rag-gist`) | The gist of retrieval-augmented generation |
-| 📚 [Documentation Helper](https://github.com/emarco177/documentation-helper) | External Repo | Intelligent documentation assistant |
-| 💻 [Code Interpreter](https://github.com/emarco177/langchain-course/tree/project/code-interpreter) | Branch (`project/code-interpreter`) | AI-powered code execution and analysis |
-| 🪞 [Reflection Agent](https://github.com/emarco177/langgraph-course/tree/project/reflection-agent) | External Repo | Self-improving agent with reflection and critique capabilities |
-| 🔄 [Reflexion Agent](https://github.com/emarco177/langgraph-course/tree/project/reflexion-agent) | External Repo | Advanced self-correcting agent using reflexion techniques |
-| 🤖 [Agentic RAG](https://github.com/emarco177/langgraph-course/tree/project/agentic-rag) | External Repo | Advanced retrieval-augmented generation system |
+Follow these steps to build a simple agent.
 
-## 📚 Course Highlights 
+### Step 1: Initialize the project
+Create a Python project and a virtual environment.
 
-- **7 Complete Projects** - From beginner to advanced implementations including Ice Breaker, Documentation Helper, and Code Interpreter
-- **Real-World Applications** - Build agents that solve actual problems with live APIs
-- **Modern Tech Stack** - LangChain v0.3+, LangGraph, Pinecone, FAISS, Streamlit
-- **Practical Skills** - Learn RAG, vector databases, prompt engineering, and agent workflows
-- **Interactive Learning** - Follow commits chronologically for step-by-step learning
+```bash
+uv init
+uv venv
+```
 
-## 🤔 Learning Path 
+### Step 2: Add packages
+Add the necessary packages:
 
-### Phase 1: Foundations
-1. **Hello World Chain** - Basic agent structure and LLM integration
-2. **Code Interpreter** - Tool calling and code execution capabilities
+- LangChain
+- Pythondotenv
+- langchain
+- langchain-openai
+- langchain-tavily (tavily is integrated with LangChain)
+- tavily-python (original Tavily SDK)
 
-### Phase 2: Real-World Applications
-3. **Ice Breaker** - Data collection and social media integration
-4. **Documentation Helper** - RAG implementation and knowledge management
+### Step 3: Add a boilerplate code
+Add a simple Python file to start the agent.
 
-### Phase 3: Advanced Concepts
-5. **Blog Analyzer** - Multi-step reasoning and content analysis
-6. **Agentic RAG** - Self-correcting agents with memory and planning
+### Step 4: Set up environment variables
+Set the following environment variables:
 
-## ▶️ Getting Started 
+- `LANGSMITH_TRACING`
+- `LANGSMITH_ENDPOINT`
+- `LANGSMITH_API_KEY`
+- `LANGSMITH_PROJECT`
+- `TAVILY_API_KEY`
+- `OPENAI_API_KEY`
 
-### 🛠️ Prerequisites 
-- **This is not a beginner course** - Basic software engineering concepts needed
-- Familiarity with: git, Python, environment variables, classes, testing and debugging
-- Python 3.10+
-- Any Python package manager (uv, poetry, pipenv) - but NOT conda!
-- Access to an LLM (can be open source via Ollama, or cloud providers like OpenAI, Anthropic, Gemini)
-- No Machine Learning experience needed
+### Step 5: Import the create_agent function
+Import the `create_agent` function from `langchain.agents`.
 
-### ⚙️ Setup Instructions 
+### Step 6: Import tools and messages
+Import tools from `langchain.tools` and messages from `langchain.messages` and `ChatOpenAI` from `langchain_openai`.
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/emarco177/langchain-course
-   cd langchain-course
-   ```
-2. **Choose your learning path**
-   
-   **For branch-based projects:**
-   ```bash
-   # Start with Hello World
-   git checkout project/hello-world
-   uv sync
-   uv run python main.py
-   
-   # Progress to Code Interpreter
-   git checkout project/code-interpreter
-   uv sync
-   uv run python main.py
-   ```
-   
-   **For external repository projects:**
-   ```bash
-   # Clone specific project repositories
-   git clone https://github.com/emarco177/ice_breaker
-   cd ice_breaker
-   # Follow project-specific setup instructions
-   ```
+### Step 7: Define tools
+Tools are functions that can be used by the LLM to execute when needed.
 
-3. **Follow the commits**
-   - Each commit represents a lesson or feature implementation
-   - Use `git log --oneline` to see the learning progression
-   - Checkout previous commits to understand the development process
+### Step 8: Implement a search agent
+Implement a search agent that will search the internet and get the response.
 
-**External Projects:**
-- [Ice Breaker](https://github.com/emarco177/ice_breaker) - Social media profile analyzer
-- [Medium Analyzer](https://github.com/emarco177/blog-analyzer) - Content analysis and insights generator
-- [Documentation Helper](https://github.com/emarco177/documentation-helper) - AI documentation assistant
-- [Reflection Agent](https://github.com/emarco177/langgraph-course/tree/project/reflection-agent) - Self-improving agent with reflection and critique capabilities
-- [Reflexion Agent](https://github.com/emarco177/langgraph-course/tree/project/reflexion-agent) - Advanced self-correcting agent using reflexion techniques
-- [Agentic RAG](https://github.com/emarco177/langgraph-course/tree/project/agentic-rag) - Advanced retrieval-augmented generation system
+### Step 9: Convert a regular Python function to a LangChain tool
+Convert a regular Python function to a LangChain tool by adding the `@tool` decorator.
 
+### Step 10: Create an agent
+Create an agent by instantiating the `ChatOpenAI()`.
 
-## 📚 Learning Objectives 
+### Step 11: Define the tool as a search tool
+Define the tool as a search tool.
 
-By the end of this course, you'll be able to:
+### Step 12: Create an agent using create_agent
+Create an agent using `create_agent` by passing the model and tools.
 
-- Build AI agents from scratch using modern frameworks
-- Implement tool calling and external API integrations
-- Create RAG systems with vector databases
-- Design multi-step reasoning workflows
-- Deploy agents to production environments
-- Handle error correction and self-improvement in agents
-- Optimize agent performance and cost efficiency
+### Step 13: Run the agent
+Run the agent using `agent.invoke` by passing the message (like a Human Message) and get the result.
 
+### Step 14: When we create an agent
+When we create an agent, we send the list of tools to the LLM and not the agent.
+
+### Step 15: Trace the invocation
+We can trace the invocation using the LangSmith.
+
+### Step 16: The sequence of events
+The sequence of events is:
+
+- Human message is sent to agent
+- Agent creates an AI message
+- Then Tool message is created
+- AI agent (LLM) will sent the final result
+
+### Using the LangChain Tavily
+
+Import the Tavily client from the `tavily` package and initialize it as follows:
+```python
+langchain_tavily import tavily search
+```
+
+use the tavily search directly as a tool . By doing this we can remove the use of defining the tool and use the tavily search of the langcahin itself
+
+If you want, I can also make it sound more formal, more beginner-friendly, or more concise.
+
+### Pydantic Object
+
+Pydantic is used to define and validate the format of the agent's response. We import `BaseModel` and `Field` from `pydantic`.
+
+We create a `Source` class by extending `BaseModel` and define a string field with a description using `Field`. We also define an `AgentResponse` class to describe the overall structure of the agent's output, including the response content and its source.
+
+Once the response schema is defined, we pass it to the agent function so the generated output follows the expected structure.
 
 
-
-
-## 🙏 Acknowledgements 
-
-Big thanks to the **LangChain / LangGraph** team and their excellent [documentation and tutorials](https://langchain-ai.github.io/langgraph/tutorials/introduction/) that make this course possible.
-
-## 🌟 Support
-
-If you find this project helpful, please consider:
-- ⭐ Starring the repository
-- 🐛 Reporting issues
-- 💡 Contributing improvements
-- 📢 Sharing with others
-
----
-
-<div align="center">
-
-### 🔗 Connect with Me
-
-[![Portfolio](https://img.shields.io/badge/Portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://www.udemy.com/course/langchain/?referralCode=D981B8213164A3EA91AC)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/eden-marco/)
-[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/EdenEmarco177)
-
-**Built with ❤️ by Eden Marco**
-
-</div>
+Langchain structured output help to give output in the structured format. Using the strcutured output we have 2 approaches 
+Toolstratergy and Providerstratergy. ProviderStartergy is used by default. 
 
