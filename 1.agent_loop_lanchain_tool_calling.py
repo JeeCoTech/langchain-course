@@ -69,6 +69,7 @@ def run_agent(question: str):
 
         tools_calls = ai_message.tool_calls
 
+        #If no tool calls, this is the final answer
         if not tools_calls:
             print(f"Final Answer: {ai_message.content}")
             return ai_message.content
@@ -85,10 +86,12 @@ def run_agent(question: str):
         if tool_to_use is None:
             raise ValueError(f"Tool '{tool_name}' not found")
 
+        #involke the tool call based on the interation
         observation = tool_to_use.invoke(tool_args)
 
         print(f"  [Tool Result] {observation}")
 
+        #IN the message we will append the api message which contains the tool call
         messages.append(ai_message)
         messages.append(
             ToolMessage(content=str(observation), tool_call_id=tool_call_id)

@@ -1,150 +1,212 @@
-# LangChain- Develop AI Agents with LangChain & LangGraph 🦜🔗
+# LangChain Course — Layer 1: Agent Loop (Tool Calling)
 
-**Learn LangChain and LangGraph by building real world AI Agents (Python, Latest Version V.1.0+)**
+This README provides a short, clear, step-by-step setup and a focused guide for the "Layer 1: Agent Loop using LangChain tool calling" demo.
 
-This course is designed to teach you how to QUICKLY harness the power of the LangChain library for LLM applications. Build 3 end-to-end working LangChain based generative AI applications with no fluff, no toy examples - just real projects using real APIs and real-world skills.
+## Prerequisites
+1. Windows machine, PowerShell or CMD.
+2. Python 3.10+ installed.
+3. Ollama installed and running (for local models).
+4. An OpenAI API key (if using OpenAI) and a LangSmith key (for tracing) if you want LangSmith traces.
+5. Recommended formatting tools: black, isort (optional).
 
-![LangChain Logo](/static/LangChain_OSS%20Lockup_light.png)
-![LangGraph Logo](/static/LangGraph_OSS%20Lockup_light.png)
+## Setup (recommended)
+1. Open PowerShell in the repo folder:
+   - cd c:\Technical\Github-Tech\langchain-course
+2. Create and activate a virtual environment:
+   - python -m venv .venv
+   - .venv\Scripts\Activate.ps1
+3. Install dependencies:
+   - pip install langchain langchain-ollama langchain-openai python-dotenv black isort
+   - Or add packages using your preferred package manager (uv) if you use one:
+     - uv install
+     - uv add langchain langchain-ollama langchain-openai python-dotenv black isort
+4. Create a `.env` file in the repo root with:
+   - OPENAI_API_KEY=your_openai_key
+   - LANGSMITH_API_KEY=your_langsmith_key
+   - (Add any other keys required for your model provider.)
 
-[![Twitter Follow](https://img.shields.io/twitter/follow/EdenMarco177?style=social)](https://twitter.com/EdenMarco177)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+## Ollama (local model) quick steps
+1. Pull or run a Qwen model with Ollama:
+   - ollama pull qwen-7b
+   - ollama run qwen-7b
+2. To serve as a local model endpoint:
+   - ollama serve
+3. Confirm Ollama is running before starting the agent.
 
-[![udemy](https://img.shields.io/badge/LangChain%20Udemy%20Course%20Coupon%20%2412.99-brightgreen)](https://www.udemy.com/course/langchain/?couponCode=JULY-2026)
+## Layer 1: Agent Loop — Tool Calling (high level)
+Goal: Demonstrate LangChain tool-calling with an agent loop that:
+- Exposes simple tools (Python functions) decorated with @tool.
+- Uses a chat model (local via Ollama or remote) with init_chat_model.
+- Iteratively calls tools and passes results back to the model until a final answer or MAX_ITERATIONS.
 
+## Layer 1: Implementation Steps (concise)
+1. Define constants:
+   - MAX_ITERATIONS (e.g., 10)
+   - MODEL identifier (e.g., "qwen-7b" or your Ollama model string)
+2. Import required modules:
+   - langchain init_chat_model, SystemMessage, HumanMessage, Tool decorator (or relevant helper)
+   - traceable decorator from langsmith (if tracing)
+   - dotenv to load .env
+3. Implement tools (example signatures):
+   - @tool
+     def get_product_price(product_name: str) -> float:
+       - return price (mock or lookup)
+   - @tool
+     def apply_discount(price: float, tier: str) -> float:
+       - calculate and return discounted price
+4. Build tool collection and a dictionary mapping tool names to callables (LangChain expects this).
+5. Initialize the chat model:
+   - model = init_chat_model(MODEL, temperature=0.0)
+   - bind or attach tools to the model/agent as your LangChain version requires.
+6. Compose messages:
+   - SystemMessage: agent behavior, constraints, and tool usage guidance.
+   - HumanMessage: the user question or task.
+7. Agent loop:
+   - For up to MAX_ITERATIONS:
+     - Send current messages to the model.
+     - If the model responds with a tool call, run the corresponding tool, collect output.
+     - Append tool output to messages and continue.
+     - If model returns a final answer (no tool call), break and return the answer.
+8. (Optional) Use @traceable on run_agent to enable LangSmith tracing.
 
+## Minimal pseudocode outline
+```python
+# filepath: c:\Technical\Github-Tech\langchain-course\agent_example.py
+# ...existing code...
+from langchain import init_chat_model, SystemMessage, HumanMessage
+from langchain.tools import tool
+from langsmith import traceable
+from dotenv import load_dotenv
+load_dotenv()
 
-## 💡 What You'll Build 
+MAX_ITERATIONS = 10
+MODEL = "qwen-7b"
 
-This course takes you through building 7 real-world AI agent projects, from simple hello-world applications to advanced agentic systems:
+@tool
+def get_product_price(name: str) -> float:
+    return 9.99  # replace with real lookup
 
-| Project | Type | Description |
-|---------|------|-------------|
-| 👋 [LangChain Hello World](https://github.com/emarco177/langchain-course/tree/project/hello-world) | Branch (`project/hello-world`) | Your first AI agent - basic structure and LLM integration |
-| 🔎  [Modern Search Agent](https://github.com/emarco177/ice_breaker/tree/project/search-agent) | Branch (`project/search-agent`) | Build search agents using LangChain v.1's `create_agent` interface with custom tools, Tavily integration, and structured outputs |
-| 🧠 [Agents Under The Hood](https://github.com/emarco177/langchain-course/tree/project/agents-under-the-hood) | Branch (`project/agents-under-the-hood`) | Understanding reasoning and acting patterns in AI agents |
-| 📄 [RAG Gist](https://github.com/emarco177/langchain-course/tree/project/rag-gist) | Branch (`project/rag-gist`) | The gist of retrieval-augmented generation |
-| 📚 [Documentation Helper](https://github.com/emarco177/documentation-helper) | External Repo | Intelligent documentation assistant |
-| 💻 [Code Interpreter](https://github.com/emarco177/langchain-course/tree/project/code-interpreter) | Branch (`project/code-interpreter`) | AI-powered code execution and analysis |
-| 🪞 [Reflection Agent](https://github.com/emarco177/langgraph-course/tree/project/reflection-agent) | External Repo | Self-improving agent with reflection and critique capabilities |
-| 🔄 [Reflexion Agent](https://github.com/emarco177/langgraph-course/tree/project/reflexion-agent) | External Repo | Advanced self-correcting agent using reflexion techniques |
-| 🤖 [Agentic RAG](https://github.com/emarco177/langgraph-course/tree/project/agentic-rag) | External Repo | Advanced retrieval-augmented generation system |
+@tool
+def apply_discount(price: float, tier: str) -> float:
+    discounts = {"gold": 0.2, "silver": 0.1}
+    return price * (1 - discounts.get(tier, 0.0))
 
-## 📚 Course Highlights 
+@traceable
+def run_agent(user_question: str) -> str:
+    model = init_chat_model(MODEL, temperature=0.0)
+    tools = {"get_product_price": get_product_price, "apply_discount": apply_discount}
+    messages = [SystemMessage(content="You are a helpful agent that may call tools."),
+                HumanMessage(content=user_question)]
+    for _ in range(MAX_ITERATIONS):
+        response = model.generate(messages)  # adjust to your LangChain API version
+        if response.calls_tool:
+            result = tools[response.tool_name](*response.tool_args)
+            messages.append(HumanMessage(content=f"Tool result: {result}"))
+            continue
+        return response.text
+    return "Max iterations reached"
+# ...existing code...
+```
 
-- **7 Complete Projects** - From beginner to advanced implementations including Ice Breaker, Documentation Helper, and Code Interpreter
-- **Real-World Applications** - Build agents that solve actual problems with live APIs
-- **Modern Tech Stack** - LangChain v0.3+, LangGraph, Pinecone, FAISS, Streamlit
-- **Practical Skills** - Learn RAG, vector databases, prompt engineering, and agent workflows
-- **Interactive Learning** - Follow commits chronologically for step-by-step learning
+## Tips & Troubleshooting
+- Use temperature=0.0 for deterministic tool-routing behavior.
+- Validate tool inputs/outputs to avoid malformed messages.
+- If Ollama model names differ, replace MODEL string accordingly.
+- Enable LangSmith tracing only after confirming basic agent behavior.
 
-## 🤔 Learning Path 
+## Licensing / Notes
+- Keep model binary downloads and usage in accordance with the model license.
+- Adjust example code to match your installed LangChain version (APIs evolve).
 
-### Phase 1: Foundations
-1. **Hello World Chain** - Basic agent structure and LLM integration
-2. **Code Interpreter** - Tool calling and code execution capabilities
+## Layer 1: Agent Loop — Raw function Calling
+This example shows how to build a manual tool-calling agent loop with Ollama and LangSmith, without using LangChain’s @tool decorator or agent abstractions.
 
-### Phase 2: Real-World Applications
-3. **Ice Breaker** - Data collection and social media integration
-4. **Documentation Helper** - RAG implementation and knowledge management
+The script includes:
 
-### Phase 3: Advanced Concepts
-5. **Blog Analyzer** - Multi-step reasoning and content analysis
-6. **Agentic RAG** - Self-correcting agents with memory and planning
+ollama for model interaction
+traceable from langsmith for tracing LLM calls and tool execution
+two tool functions: get_product_price and apply_discount
+manual JSON schema definitions for tool calling
 
-## ▶️ Getting Started 
+#### Key Concepts ####
+Import only ollama
+Import traceable from langsmith
+Use Ollama function calling without @tool
+Define tool metadata and arguments manually using JSON schema
+Trace both tool execution and LLM calls with LangSmith
+Functions
+The same functions used in this example are:
 
-### 🛠️ Prerequisites 
-- **This is not a beginner course** - Basic software engineering concepts needed
-- Familiarity with: git, Python, environment variables, classes, testing and debugging
-- Python 3.10+
-- Any Python package manager (uv, poetry, pipenv) - but NOT conda!
-- Access to an LLM (can be open source via Ollama, or cloud providers like OpenAI, Anthropic, Gemini)
-- No Machine Learning experience needed
+```python 
+get_product_price(product: str) -> float
+```
+Looks up the product price in a catalog
+```python
+apply_discount(price: float, discount_tier: str) -> float
+```
+Applies a discount tier to the price and returns the final price
+Manual Tool Schema
+Because @tool is not used, the tool definitions are written manually as JSON schema objects.
 
-### ⚙️ Setup Instructions 
+Each tool entry includes:
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/emarco177/langchain-course
-   cd langchain-course
-   ```
-2. **Choose your learning path**
-   
-   **For branch-based projects:**
-   ```bash
-   # Start with Hello World
-   git checkout project/hello-world
-   uv sync
-   uv run python main.py
-   
-   # Progress to Code Interpreter
-   git checkout project/code-interpreter
-   uv sync
-   uv run python main.py
-   ```
-   
-   **For external repository projects:**
-   ```bash
-   # Clone specific project repositories
-   git clone https://github.com/emarco177/ice_breaker
-   cd ice_breaker
-   # Follow project-specific setup instructions
-   ```
+name
+description
+parameters
+required fields
+This is how Ollama knows the tool signature and arguments.
 
-3. **Follow the commits**
-   - Each commit represents a lesson or feature implementation
-   - Use `git log --oneline` to see the learning progression
-   - Checkout previous commits to understand the development process
+Message Format
+The message format is built manually using plain dictionaries:
 
-**External Projects:**
-- [Ice Breaker](https://github.com/emarco177/ice_breaker) - Social media profile analyzer
-- [Medium Analyzer](https://github.com/emarco177/blog-analyzer) - Content analysis and insights generator
-- [Documentation Helper](https://github.com/emarco177/documentation-helper) - AI documentation assistant
-- [Reflection Agent](https://github.com/emarco177/langgraph-course/tree/project/reflection-agent) - Self-improving agent with reflection and critique capabilities
-- [Reflexion Agent](https://github.com/emarco177/langgraph-course/tree/project/reflexion-agent) - Advanced self-correcting agent using reflexion techniques
-- [Agentic RAG](https://github.com/emarco177/langgraph-course/tree/project/agentic-rag) - Advanced retrieval-augmented generation system
+{"role": "system", "content": ...}
+{"role": "user", "content": ...}
+{"role": "tool", "content": ...}
+This differs from LangChain’s higher-level message classes such as:
 
+SystemMessage
+HumanMessage
+AIMessage
+Agent Loop Behavior
 
-## 📚 Learning Objectives 
+The agent loop:
+Sends messages to ollama.chat
+Checks if the model returned a tool call
+Executes the first tool call manually
+Appends the tool result as a tool message
+Repeats until the model returns a final answer
+Differences Listed in the File
+Difference 1: We don’t use @tool decorator.
+Difference 2: Without @tool, we must MANUALLY define the JSON schema for each function.
+Difference 3: Without LangChain, we must manually trace LLM calls for LangSmith.
+Difference 4: Format of messages is different from LangChain’s SystemMessage/HumanMessage/AIMessage classes.
+Difference 5: ollama.chat() directly instead of llm_with_tools.invoke().
+Difference 6: Attribute access (.function.name) instead of dict access (.get("name")).
+Difference 7: Direct function call instead of tool.invoke().
+Why This Approach
+This example demonstrates the lower-level mechanics of tool calling:
 
-By the end of this course, you'll be able to:
+manual tool registration
+explicit message management
+direct function execution
+explicit tracing
 
-- Build AI agents from scratch using modern frameworks
-- Implement tool calling and external API integrations
-- Create RAG systems with vector databases
-- Design multi-step reasoning workflows
-- Deploy agents to production environments
-- Handle error correction and self-improvement in agents
-- Optimize agent performance and cost efficiency
+### Layer 2 : ReAct prompt ###
+In thie section we will use the React Prompt for tool calling instead of Langchain or Ollama
 
+We need to use he regualr exprssion as we use the prompt for tool calling
+We need to use the tool dictionary (tools) which contains the tool name
 
+Since we use the prompt, we need to use the inspect to get the signature and docstring. This is then later propagated to LLM. 
 
+We then get the tool description based on the tools and then we get tool names 
 
+IN the react prompt we then need to configure the tool description and then tool names to the ReAct prompt. 
 
-## 🙏 Acknowledgements 
+In ollama_chat_traced fucntion, we are using the model, messges and options which will call the ollama chat model. 
 
-Big thanks to the **LangChain / LangGraph** team and their excellent [documentation and tutorials](https://langchain-ai.github.io/langgraph/tutorials/introduction/) that make this course possible.
+We are not using any message prompt instead we are using the ReAct Prompt. 
+Scrathpad containts the action taken by the LLM so far
+When we iterate the iteration we send the full prompt as a combination of prompt and details of the scrath pad. 
 
-## 🌟 Support
-
-If you find this project helpful, please consider:
-- ⭐ Starring the repository
-- 🐛 Reporting issues
-- 💡 Contributing improvements
-- 📢 Sharing with others
-
----
-
-<div align="center">
-
-### 🔗 Connect with Me
-
-[![Portfolio](https://img.shields.io/badge/Portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://www.udemy.com/course/langchain/?referralCode=D981B8213164A3EA91AC)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/eden-marco/)
-[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/EdenEmarco177)
-
-**Built with ❤️ by Eden Marco**
-
-</div>
-
+Once the LLM generates the LLM output after the LLM execution , we can use thettribute as "Final Answer"
