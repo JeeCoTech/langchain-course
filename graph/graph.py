@@ -34,6 +34,7 @@ def grade_generation_grounded_in_documents_and_question(state: GraphState) -> st
         {"documents": documents, "generation": generation}
     )
 
+    ## Self - RAG
     if hallucination_grade := score.binary_score:
         print("---DECISION: GENERATION IS GROUNDED IN DOCUMENTS---")
         print("---GRADE GENERATION vs QUESTION---")
@@ -48,7 +49,7 @@ def grade_generation_grounded_in_documents_and_question(state: GraphState) -> st
         print("---DECISION: GENERATION IS NOT GROUNDED IN DOCUMENTS, RE-TRY---")
         return "not supported"
 
-
+## Adaptive - RAG 
 def route_question(state: GraphState) -> str:
     print("---ROUTE QUESTION---")
     question = state["question"]
@@ -68,6 +69,7 @@ workflow.add_node(GRADE_DOCUMENTS, grade_documents)
 workflow.add_node(GENERATE, generate)
 workflow.add_node(WEBSEARCH, web_search)
 
+#Adaptove RAG
 workflow.set_conditional_entry_point(
     route_question,
     {
@@ -85,6 +87,7 @@ workflow.add_conditional_edges(
     },
 )
 
+## Self RAG
 workflow.add_conditional_edges(
     GENERATE,
     grade_generation_grounded_in_documents_and_question,
