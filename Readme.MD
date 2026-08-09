@@ -124,3 +124,8 @@ pytest
 ---
 
 This README is designed to be self-contained and to let a developer follow the repository setup and run the project end-to-end.
+
+
+Flow Diagrams
+![alt text](graph.png)
+![alt text](image.png)
